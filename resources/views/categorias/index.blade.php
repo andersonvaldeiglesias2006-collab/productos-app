@@ -2,38 +2,42 @@
 @section('titulo', 'Categorías')
 @section('contenido')
 
-<h1>Categorías
-    <span style="font-size:1rem; font-weight:normal; color:#888">
-        ({{ $categorias->count() }} registros)
-    </span>
-</h1>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Categorías</h1>
+        <div class="gold-line"></div>
+        <p class="page-subtitle">{{ $categorias->count() }} categorías registradas</p>
+    </div>
+</div>
 
 @if($categorias->isEmpty())
-    <p style="color:#888">No hay categorías registradas aún.</p>
+    <div class="alert alert-info">No hay categorías registradas aún.</div>
 @else
-<table>
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Descripción</th>
-            <th>N° Productos</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($categorias as $categoria)
-        <tr>
-            <td>{{ $categoria->id_categoria }}</td>
-            <td>{{ $categoria->descripcion }}</td>
-            <td>
-                {{-- Badge verde si tiene productos, azul si no tiene --}}
-                <span class="badge {{ $categoria->productos->count() > 0 ? 'badge-ok' : '' }}">
-                    {{ $categoria->productos->count() }}
-                </span>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+<div class="card" style="padding:0; overflow:hidden">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Descripción</th>
+                <th>N° Productos</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($categorias as $categoria)
+            <tr>
+                <td style="color:var(--ink-light); font-size:.88rem">{{ $categoria->id_categoria }}</td>
+                <td style="font-weight:600">{{ $categoria->descripcion }}</td>
+                <td>
+                    @php $count = $categoria->productos->count(); @endphp
+                    <span class="stock-badge {{ $count > 0 ? 'stock-ok' : 'stock-low' }}">
+                        {{ $count }} {{ $count == 1 ? 'producto' : 'productos' }}
+                    </span>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 @endif
 
 @endsection

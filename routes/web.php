@@ -4,12 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CarritoController;
 use App\Models\Categoria;
 use App\Models\Producto;
 
-// ── RUTAS PÚBLICAS (cualquiera puede entrar sin iniciar sesión) ──────────
+// ── PÚBLICAS ─────────────────────────────────────────────────────────────
 
-// Página de inicio: pasa el conteo de categorías y productos a la vista
 Route::get('/', function () {
     return view('home', [
         'totalCategorias' => Categoria::count(),
@@ -17,22 +17,31 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-// Muestra el formulario de login
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-
-// Procesa el formulario cuando el usuario hace clic en "Iniciar Sesión"
+Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout',[AuthController::class, 'logout'])->name('logout');
 
-// Cierra la sesión
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// ── RUTAS PROTEGIDAS (solo accesibles si hay sesión activa) ─────────────
-// Si alguien intenta entrar sin sesión, Laravel lo redirige automáticamente a /login
+// ── PROTEGIDAS (requieren sesión) ─────────────────────────────────────────
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
 
-    Route::get('/productos', [ProductoController::class, 'index'])->name('productos.index');
+    Route::get('/productos',          [ProductoController::class, 'index'])->name('productos.index');
+    Route::get('/galeria',            [ProductoController::class, 'galeria'])->name('productos.galeria');
+    Route::get('/productos/{id}',     [ProductoController::class, 'show'])->name('productos.show');
+
+    // Edición solo para admin
+    Route::get('/productos/{id}/edit',   [ProductoController::class, 'edit'])->name('productos.edit');
+    Route::put('/productos/{id}',        [ProductoController::class, 'update'])->name('productos.update');
+
+    // Carrito
+    Route::get('/carrito',                [CarritoController::class, 'index'])->name('carrito.index');
+    Route::post('/carrito/agregar/{id}',  [CarritoController::class, 'agregar'])->name('carrito.agregar');
+    Route::post('/carrito/quitar/{id}',   [CarritoController::class, 'quitar'])->name('carrito.quitar');
+    Route::post('/carrito/vaciar',        [CarritoController::class, 'vaciar'])->name('carrito.vaciar');
+
+    // Confirmación de pedido
+    Route::get('/carrito/confirmar',      [CarritoController::class, 'confirmar'])->name('carrito.confirmar');
 
 });
